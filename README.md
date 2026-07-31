@@ -1,2 +1,0 @@
-# BQGA
-Test
