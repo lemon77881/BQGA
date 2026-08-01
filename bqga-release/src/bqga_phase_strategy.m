@@ -2,7 +2,7 @@ function strategy = bqga_phase_strategy(diversity_metrics, generation, ~)
 % BQGA_PHASE_STRATEGY  Phase-specific quantum search parameters.
 %
 % Implements Section 3.4.2 and Section 3.4.3 of the manuscript:
-%   Eq. (14) step-size multiplier s and mutation-rate multiplier m for the
+%   Eq. (15) step-size multiplier s and mutation-rate multiplier m for the
 %            plasma, liquid and crystal phases, relative to the baseline
 %            values s_b and m_b;
 %   phase-transition shock, a one-generation parameter adjustment applied
@@ -30,14 +30,14 @@ function strategy = bqga_phase_strategy(diversity_metrics, generation, ~)
     evolution_stage   = diversity_metrics.evolution_stage;
     phase_transition  = diversity_metrics.phase_transition;
 
-    % Baseline values, corresponding to the liquid phase of Eq. (14)
+    % Baseline values, corresponding to the liquid phase of Eq. (15)
     strategy.step_size_multiplier         = 1.0;
     strategy.mutation_rate_multiplier     = 1.0;
     strategy.exploration_intensity        = 0.5;
     strategy.convergence_pressure         = 0.5;
     strategy.quantum_interference_strength = 0.5;
 
-    %% PHASE-SPECIFIC QUANTUM WALK PARAMETERS (Eq. 14)
+    %% PHASE-SPECIFIC QUANTUM WALK PARAMETERS (Eq. 15)
     switch quantum_phase
         case 'PLASMA'
             % Global exploration: (s, m) = (1.8 s_b, 2.5 m_b)
