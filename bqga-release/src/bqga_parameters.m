@@ -28,11 +28,11 @@ function params = bqga_parameters()
     params.quantum_interference_strength = 0.8;
     params.quantum_ballistic_scaling     = 0.1;
 
-    % Interference decay constant tau of Eq. (17): I = exp(-D / tau)
+    % Interference decay constant tau of Eq. (18): I = exp(-D / tau)
     params.interference_decay_tau = 0.5;
 
     % ---------------------------------------------------------------
-    % Phase-transition control (Eq. 13)
+    % Phase-transition control (Eq. 14)
     % ---------------------------------------------------------------
     params.tau_high          = 0.65;    % plasma threshold
     params.tau_low           = 0.25;    % crystal threshold
@@ -53,7 +53,7 @@ function params = bqga_parameters()
     params.edge_preservation_range  = [1.000, 1.277];
 
     % ---------------------------------------------------------------
-    % Fitness component weights (Eq. 18)
+    % Fitness component weights (Eq. 19)
     % ---------------------------------------------------------------
     params.w_psnr_band = 0.30;
     params.w_cnr       = 0.30;
