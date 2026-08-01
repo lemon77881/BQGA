@@ -19,7 +19,7 @@ src/
   bqga_phase_strategy.m  Phase-specific quantum walk parameters (Eq. 15) and
                          phase-transition shock
   bqga_quantum_walk.m    Phase-modulated coin operator (Eq. 16), quantum walk
-                         (Eq. 167 and gradient-aware mutation (Eq. 18)
+                         (Eq. 17) and gradient-aware mutation (Eq. 18)
 docs/
   EQUATION_MAP.md        Equation-to-code map with line numbers
   DATA.md                Access to the CHAOS and LiTS2017 benchmarks
