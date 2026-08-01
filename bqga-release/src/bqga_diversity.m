@@ -3,13 +3,13 @@ function diversity_metrics = bqga_diversity(population, fitness_values, generati
 % thermodynamic phase detection.
 %
 % Implements Section 3.3 and Section 3.4.1 of the manuscript:
-%   Eq. (7)  D_p : parameter-space diversity
-%   Eq. (8)  D_q : quantum-state diversity (Fubini-Study angle)
-%   Eq. (9)  D_m : decoded-parameter diversity
-%   Eq. (10) D_f : fitness diversity
-%   Eq. (11) min-max normalisation of each component
-%   Eq. (12) D   : composite diversity score, equal weights
-%   Eq. (13) phase classification with hysteresis buffer
+%   Eq. (8)  D_p : parameter-space diversity
+%   Eq. (9)  D_q : quantum-state diversity (Fubini-Study angle)
+%   Eq. (10) D_m : decoded-parameter diversity
+%   Eq. (11) D_f : fitness diversity
+%   Eq. (12) min-max normalisation of each component
+%   Eq. (13) D   : composite diversity score, equal weights
+%   Eq. (14) phase classification with hysteresis buffer
 %
 % The previous-phase state machine is an explicit input rather than
 % internal state, so the function is free of hidden state across calls,
@@ -37,7 +37,7 @@ function diversity_metrics = bqga_diversity(population, fitness_values, generati
     popsize = length(population);
 
     try
-        %% 1. PARAMETER-SPACE DIVERSITY (Eq. 7)
+        %% 1. PARAMETER-SPACE DIVERSITY (Eq. 8)
         %   D_p = 0.5 * (sqrt(Var(theta)) + sqrt(Var(phi)))
         % std(.) equals sqrt(Var(.)). The per-qubit standard deviations are
         % averaged across the K qubit dimensions to obtain a scalar.
@@ -70,7 +70,7 @@ function diversity_metrics = bqga_diversity(population, fitness_values, generati
             diversity_metrics.parameter_diversity = 0.1;
         end
 
-        %% 2. FITNESS DIVERSITY (Eq. 10)
+        %% 2. FITNESS DIVERSITY (Eq. 11)
         %   D_f = sigma_f / (mu_f + epsilon)
         % Saturated at 1 because the ratio diverges as the fitness mean
         % approaches zero, and tends to 0 for a near-uniform population.
@@ -87,7 +87,7 @@ function diversity_metrics = bqga_diversity(population, fitness_values, generati
             diversity_metrics.fitness_diversity = 1.0;
         end
 
-        %% 3. QUANTUM-STATE DIVERSITY (Eq. 8, Fubini-Study angle)
+        %% 3. QUANTUM-STATE DIVERSITY (Eq. 9, Fubini-Study angle)
         %   D_q = (2 / (N(N-1))) * sum_{i<j} arccos(|<psi_i | psi_j>|)
         % For a single qubit |psi> = cos(theta/2)|0> + e^{i phi} sin(theta/2)|1>,
         %   |<psi_i | psi_j>| = | cos(theta_i/2) cos(theta_j/2)
@@ -95,7 +95,7 @@ function diversity_metrics = bqga_diversity(population, fitness_values, generati
         % A chromosome is a tensor product of K independent single-qubit
         % states, so the chromosome-level overlap is the per-qubit product.
         % The Fubini-Study angle lies in [0, pi/2] for orthogonal states,
-        % hence the division by pi/2 maps the metric to [0, 1] (Eq. 11).
+        % hence the division by pi/2 maps the metric to [0, 1] (Eq. 12).
         if popsize > 1
             Dq_sum  = 0;
             n_pairs = 0;
@@ -124,17 +124,17 @@ function diversity_metrics = bqga_diversity(population, fitness_values, generati
             diversity_metrics.quantum_diversity = 0.5;
         end
 
-        %% 4. DECODED-PARAMETER DIVERSITY (Eq. 9)
+        %% 4. DECODED-PARAMETER DIVERSITY (Eq. 10)
         %   D_m = (1/K) * sum_{k=1..K} sigma(p_k)
         % All five decoded parameters contribute: window centre, window
         % width, contrast gain, noise suppression and edge retention. Each
         % standard deviation is normalised by half of the corresponding
         % admissible range, so a fully spread population yields 1 per
-        % parameter (Eq. 11).
+        % parameter (Eq. 12).
         %
-        % Eq. (9) refers to the spread of the linearly decoded parameters
+        % Eq. (10) refers to the spread of the linearly decoded parameters
         % across the population, so the decoding here is the plain
-        % Bloch-to-range mapping of Eq. (6).
+        % Bloch-to-range mapping of Eq. (7).
         try
             wc = zeros(1, popsize);
             ww = zeros(1, popsize);
@@ -180,10 +180,10 @@ function diversity_metrics = bqga_diversity(population, fitness_values, generati
             diversity_metrics.medical_diversity = 0.1;
         end
 
-        %% 5. COMPOSITE DIVERSITY SCORE (Eq. 12, equal weights)
+        %% 5. COMPOSITE DIVERSITY SCORE (Eq. 13, equal weights)
         %   D = (1/4) * (D_p + D_q + D_m + D_f)
         % Every component is already mapped to [0, 1] by the per-component
-        % normalisation of Eq. (11), so the equal-weight mean is applied
+        % normalisation of Eq. (12), so the equal-weight mean is applied
         % directly.
         weights = [0.25, 0.25, 0.25, 0.25];
         components = [diversity_metrics.parameter_diversity, ...
@@ -194,7 +194,7 @@ function diversity_metrics = bqga_diversity(population, fitness_values, generati
         components = max(0, min(1, components));
         diversity_metrics.overall_diversity = sum(weights .* components);
 
-        %% PHASE CLASSIFICATION WITH HYSTERESIS (Eq. 13)
+        %% PHASE CLASSIFICATION WITH HYSTERESIS (Eq. 14)
         PLASMA_THRESHOLD  = params.tau_high;
         LIQUID_UPPER      = params.tau_high;
         LIQUID_LOWER      = params.tau_low;
@@ -310,7 +310,7 @@ end
 
 
 function value = bqga_map_to_range(coord, range)
-% BQGA_MAP_TO_RANGE  Linear Bloch-to-parameter mapping of Eq. (6):
+% BQGA_MAP_TO_RANGE  Linear Bloch-to-parameter mapping of Eq. (7):
 %   p_k = l_k + 0.5 * (c_k + 1) * (u_k - l_k),  c_k in [-1, 1].
     coord = max(-1, min(1, coord));
     value = range(1) + 0.5 * (coord + 1) * (range(2) - range(1));
