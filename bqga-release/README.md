@@ -14,12 +14,12 @@ enhancement.
 ```
 src/
   bqga_parameters.m      Parameter settings of Table 1
-  bqga_diversity.m       Four-dimensional diversity quantification (Eqs. 7-12)
-                         and phase classification with hysteresis (Eq. 13)
-  bqga_phase_strategy.m  Phase-specific quantum walk parameters (Eq. 14) and
+  bqga_diversity.m       Four-dimensional diversity quantification (Eqs. 8-13)
+                         and phase classification with hysteresis (Eq. 14)
+  bqga_phase_strategy.m  Phase-specific quantum walk parameters (Eq. 15) and
                          phase-transition shock
-  bqga_quantum_walk.m    Phase-modulated coin operator (Eq. 15), quantum walk
-                         (Eq. 16) and gradient-aware mutation (Eq. 17)
+  bqga_quantum_walk.m    Phase-modulated coin operator (Eq. 16), quantum walk
+                         (Eq. 167 and gradient-aware mutation (Eq. 18)
 docs/
   EQUATION_MAP.md        Equation-to-code map with line numbers
   DATA.md                Access to the CHAOS and LiTS2017 benchmarks
@@ -55,13 +55,13 @@ for i = 1:N
 end
 fitness = rand(1, N);
 
-% Eqs. (7)-(13): diversity quantification and phase detection
+% Eqs. (8)-(14): diversity quantification and phase detection
 dm = bqga_diversity(pop, fitness, 5, params, 'LIQUID');
 
-% Eq. (14): phase-specific step size and mutation rate
+% Eq. (15): phase-specific step size and mutation rate
 st = bqga_phase_strategy(dm, 5, params);
 
-% Eqs. (15)-(17): quantum walk operators for the active phase
+% Eqs. (16)-(18): quantum walk operators for the active phase
 wp = bqga_quantum_walk('parameters', params, 5, dm.overall_diversity);
 wp.mutation_rate_multiplier = st.mutation_rate_multiplier;
 wp.edge_density = 0.12;   % E, extracted during preprocessing
@@ -79,8 +79,8 @@ parallel runs do not interfere.
 
 ## Implementation notes
 
-- The coin bias of Eq. (15) couples linearly to the composite diversity score,
-  giving `rho in [0.35, 0.65]`; the interference intensity of Eq. (17) decays as
+- The coin bias of Eq. (16) couples linearly to the composite diversity score,
+  giving `rho in [0.35, 0.65]`; the interference intensity of Eq. (18) decays as
   `exp(-D / tau)` with `tau = 0.5`. Both relations can be verified directly by
   evaluating `bqga_quantum_walk('parameters', ...)` across `D in [0, 1]`; the
   expected values are tabulated in `docs/EQUATION_MAP.md`.
