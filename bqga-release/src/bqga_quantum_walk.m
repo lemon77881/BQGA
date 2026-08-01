@@ -2,10 +2,10 @@ function varargout = bqga_quantum_walk(action, varargin)
 % BQGA_QUANTUM_WALK  Phase-adaptive quantum walk operator.
 %
 % Implements Section 3.5 of the manuscript:
-%   Eq. (15) phase-modulated coin operator C, whose bias rho couples
+%   Eq. (16) phase-modulated coin operator C, whose bias rho couples
 %            linearly to the composite diversity score D;
-%   Eq. (16) discrete-time quantum walk |x,d> <- S (C kron I) |x,d>;
-%   Eq. (17) gradient-aware quantum mutation
+%   Eq. (17) discrete-time quantum walk |x,d> <- S (C kron I) |x,d>;
+%   Eq. (18) gradient-aware quantum mutation
 %            delta_theta = I * N(0, sigma_m) * w_E.
 %
 % Dispatch:
@@ -48,20 +48,20 @@ function walk_params = walk_parameters(params, generation, D)
 
     walk_params = struct();
 
-    % Diffusion scale of Eq. (16): contracts as 1/sqrt(g)
+    % Diffusion scale of Eq. (17): contracts as 1/sqrt(g)
     walk_params.diffusion_scale = 1 / sqrt(generation + 1);
 
     % Base step of the shift operator
     walk_params.base_step_size = params.shiftstep * params.quantum_ballistic_scaling;
 
-    % Coin bias of Eq. (15): rho = 0.5 + 0.3 (D - 0.5), so that
+    % Coin bias of Eq. (16): rho = 0.5 + 0.3 (D - 0.5), so that
     % rho lies in [0.35, 0.65] as D ranges over [0, 1]. At D = 0.5 the coin
     % is balanced; as D falls the diagonal entries dominate and bias the
     % walk toward exploitation; as D rises the off-diagonal entries dominate
     % and restore exploratory breadth.
     walk_params.coin_rho = 0.5 + 0.3 * (D - 0.5);
 
-    % Parameter-dependent coin phases alpha and beta of Eq. (15). The window
+    % Parameter-dependent coin phases alpha and beta of Eq. (16). The window
     % settings are the most sensitive parameters and receive the smallest
     % phases; the contrast gain tolerates the widest exploration.
     walk_params.coin_phases = [
@@ -72,7 +72,7 @@ function walk_params = walk_parameters(params, generation, D)
         pi/4     % edge retention
     ];
 
-    % Interference intensity of Eq. (17): I = exp(-D / tau) with tau = 0.5.
+    % Interference intensity of Eq. (18): I = exp(-D / tau) with tau = 0.5.
     % As D tends to 0 in the crystal phase, I tends to 1 and maximises the
     % perturbation available for local refinement; as D tends to 1 in the
     % plasma phase, I tends to exp(-2) and suppresses mutation so that the
@@ -93,7 +93,7 @@ end
 
 % =====================================================================
 function C = coin_operator(rho, alpha, beta)
-% Phase-modulated coin operator of Eq. (15):
+% Phase-modulated coin operator of Eq. (16):
 %
 %   C = [ sqrt(rho)                    sqrt(1-rho) e^{i alpha}
 %         sqrt(1-rho) e^{i beta}      -sqrt(rho) e^{i(alpha+beta)} ]
@@ -107,7 +107,7 @@ end
 % =====================================================================
 function [new_theta, new_phi, walk_stats] = walk_step(current_theta, current_phi, ...
         target_theta, target_phi, param_index, walk_params)
-% One discrete-time quantum walk step of Eq. (16).
+% One discrete-time quantum walk step of Eq. (17).
 %
 % Rather than moving directly toward the incumbent best solution, the coin
 % operator places the qubit in a superposition of directions and the
@@ -117,7 +117,7 @@ function [new_theta, new_phi, walk_stats] = walk_step(current_theta, current_phi
     walk_stats = struct('interference_strength', 0);
 
     try
-        % Coin operator of Eq. (15) for the k-th enhancement parameter
+        % Coin operator of Eq. (16) for the k-th enhancement parameter
         k     = min(max(1, param_index), numel(walk_params.coin_phases));
         alpha = walk_params.coin_phases(k);
         beta  = walk_params.coin_phases(max(1, mod(k, numel(walk_params.coin_phases)) + 1));
@@ -191,7 +191,7 @@ end
 
 % =====================================================================
 function [mutated_theta, mutated_phi] = walk_mutation(theta, phi, walk_params)
-% Gradient-aware quantum mutation of Eq. (17):
+% Gradient-aware quantum mutation of Eq. (18):
 %
 %   delta_theta = I * N(0, sigma_m) * w_E
 %
@@ -225,7 +225,7 @@ function [mutated_theta, mutated_phi] = walk_mutation(theta, phi, walk_params)
         % Interference intensity I = exp(-D / tau)
         I = walk_params.interference_intensity;
 
-        % Polar-angle perturbation of Eq. (17)
+        % Polar-angle perturbation of Eq. (18)
         delta_theta = I * (sigma_m * randn) * w_E;
 
         % The coin operator randomises the walk direction of the mutation
@@ -250,7 +250,7 @@ function [mutated_theta, mutated_phi] = walk_mutation(theta, phi, walk_params)
             mutated_phi = phi;
         end
 
-        % Apply the Eq. (17) perturbation to the polar angle
+        % Apply the Eq. (18) perturbation to the polar angle
         mutated_theta = mutated_theta + delta_theta;
 
         mutated_theta = max(0, min(pi, real(mutated_theta)));
