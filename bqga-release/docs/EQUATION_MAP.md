@@ -29,7 +29,7 @@ quantities already mapped to `[0, 1]`.
 | Eq. (15) | Step-size multiplier `s` and mutation-rate multiplier `m` per phase | `bqga_phase_strategy.m` | 40–116 |
 | Section 3.4.3 | Phase-transition shock, one-generation adjustment | `bqga_phase_strategy.m` | 117–157 |
 
-The three phases carry the multipliers of Eq. (14) relative to the baseline
+The three phases carry the multipliers of Eq. (15) relative to the baseline
 values `s_b` and `m_b`:
 
 | Phase | `s` | `m` | Lines |
